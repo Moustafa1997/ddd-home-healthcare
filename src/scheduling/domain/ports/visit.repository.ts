@@ -1,4 +1,4 @@
-import { Visit } from '../domain/visit';
+import { Visit } from '../visit';
 
 /** Port. Lesson 08 adds the Postgres adapter; for now an in-memory one is enough. */
 export abstract class VisitRepository {

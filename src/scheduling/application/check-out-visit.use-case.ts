@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import { VisitRepository } from './visit.repository';
+import { VisitRepository } from '../domain/ports/visit.repository';
 import { DomainError } from '../../shared/domain/domain.error';
 
 /**

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Visit } from '../domain/visit';
-import { VisitRepository } from './visit.repository';
+import { Visit } from '../../domain/visit';
+import { VisitRepository } from '../../domain/ports/visit.repository';
 
 @Injectable()
 export class InMemoryVisitRepository extends VisitRepository {

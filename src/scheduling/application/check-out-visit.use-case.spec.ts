@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { CqrsModule, EventBus } from '@nestjs/cqrs';
 import { CheckOutVisitUseCase } from './check-out-visit.use-case';
-import { VisitRepository } from './visit.repository';
-import { InMemoryVisitRepository } from './in-memory-visit.repository';
+import { VisitRepository } from '../domain/ports/visit.repository';
+import { InMemoryVisitRepository } from '../infrastructure/persistence/in-memory-visit.repository';
 import { Visit } from '../domain/visit';
 import { VisitCompleted } from '../domain/events';
 import { CreateInvoiceOnVisitCompleted } from '../../billing/application/on-visit-completed.handler';
