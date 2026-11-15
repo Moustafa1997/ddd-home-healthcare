@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './shared/database/database.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { BillingModule } from './billing/billing.module';
 import { PayrollModule } from './payroll/payroll.module';
@@ -13,6 +14,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
     SchedulingModule,
     BillingModule,
     PayrollModule,
