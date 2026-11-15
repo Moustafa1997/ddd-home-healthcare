@@ -16,6 +16,8 @@ import { DashboardQuery } from './read-model/dashboard.query';
 import { DashboardController } from './infrastructure/http/dashboard.controller';
 import { OutboxModule } from '../shared/outbox/outbox.module';
 import { OutboxRelay } from '../shared/outbox/outbox.relay';
+import { EventStoreModule } from '../shared/event-store/event-store.module';
+import { EventSourcedVisitRepository } from './event-sourcing/es-visit.repository';
 import { VisitCompleted, VisitCancelled, CaregiverReleased } from './domain/events';
 import { CancelVisitUseCase } from './application/cancel-visit.use-case';
 import { CancelVisitSaga } from './application/sagas/cancel-visit.saga';
@@ -29,9 +31,10 @@ import { ReleaseCaregiverHandler, ReassignCaregiverHandler, ReinstateVisitHandle
  *   application/     — use cases orchestrating the domain
  *   infrastructure/  — ADAPTERS: persistence (Postgres), http (REST)
  *   read-model/      — CQRS query side: flat tables + projections (lesson 09)
+ *   event-sourcing/  — alternative persistence: Visit as an event stream (lesson 13)
  */
 @Module({
-  imports: [CqrsModule, OutboxModule, TypeOrmModule.forFeature([VisitRecord, BillingLineRecord, VisitOrmEntity, VisitDashboardRow])],
+  imports: [CqrsModule, OutboxModule, EventStoreModule, TypeOrmModule.forFeature([VisitRecord, BillingLineRecord, VisitOrmEntity, VisitDashboardRow])],
   controllers: [VisitsController, DashboardController],
   providers: [
     CheckOutVisitScript,
@@ -45,6 +48,7 @@ import { ReleaseCaregiverHandler, ReassignCaregiverHandler, ReinstateVisitHandle
     ReinstateVisitHandler,
     VisitDashboardProjection,
     DashboardQuery,
+    EventSourcedVisitRepository,
   ],
   exports: [CheckOutVisitUseCase, CancelVisitUseCase, VisitRepository],
 })
