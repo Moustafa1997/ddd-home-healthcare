@@ -14,6 +14,9 @@ import { VisitDashboardRow } from './read-model/visit-dashboard.orm-entity';
 import { VisitDashboardProjection } from './read-model/visit-dashboard.projection';
 import { DashboardQuery } from './read-model/dashboard.query';
 import { DashboardController } from './infrastructure/http/dashboard.controller';
+import { OutboxModule } from '../shared/outbox/outbox.module';
+import { OutboxRelay } from '../shared/outbox/outbox.relay';
+import { VisitCompleted } from './domain/events';
 
 /**
  * Scheduling Bounded Context (Core subdomain).
@@ -25,7 +28,7 @@ import { DashboardController } from './infrastructure/http/dashboard.controller'
  *   read-model/      — CQRS query side: flat tables + projections (lesson 09)
  */
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([VisitRecord, BillingLineRecord, VisitOrmEntity, VisitDashboardRow])],
+  imports: [CqrsModule, OutboxModule, TypeOrmModule.forFeature([VisitRecord, BillingLineRecord, VisitOrmEntity, VisitDashboardRow])],
   controllers: [VisitsController, DashboardController],
   providers: [
     CheckOutVisitScript,
@@ -37,4 +40,6 @@ import { DashboardController } from './infrastructure/http/dashboard.controller'
   ],
   exports: [CheckOutVisitUseCase, VisitRepository],
 })
-export class SchedulingModule {}
+export class SchedulingModule {
+  constructor(relay: OutboxRelay) { relay.register(VisitCompleted); }
+}

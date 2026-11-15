@@ -2,16 +2,17 @@ import { DataSource } from 'typeorm';
 import { VisitOrmEntity } from './visit.orm-entity';
 import { PostgresVisitRepository } from './postgres-visit.repository';
 import { Visit } from '../../domain/visit';
+import { OutboxMessage } from '../../../shared/outbox/outbox-message.orm-entity';
 
 describe('PostgresVisitRepository (adapter)', () => {
   let ds: DataSource; let repo: PostgresVisitRepository;
 
   beforeAll(async () => {
-    ds = new DataSource({ type: 'postgres', url: process.env.DATABASE_URL ?? 'postgres://ddd:ddd@localhost:5432/home_healthcare', entities: [VisitOrmEntity], synchronize: true });
+    ds = new DataSource({ type: 'postgres', url: process.env.DATABASE_URL ?? 'postgres://ddd:ddd@localhost:5432/home_healthcare', entities: [VisitOrmEntity, OutboxMessage], synchronize: true });
     await ds.initialize();
-    repo = new PostgresVisitRepository(ds.getRepository(VisitOrmEntity));
+    repo = new PostgresVisitRepository(ds.getRepository(VisitOrmEntity), ds);
   });
-  beforeEach(() => ds.query('TRUNCATE scheduling_visits'));
+  beforeEach(() => ds.query('TRUNCATE scheduling_visits, outbox'));
   afterAll(() => ds.destroy());
 
   it('round-trips the aggregate through the row without losing behaviour', async () => {

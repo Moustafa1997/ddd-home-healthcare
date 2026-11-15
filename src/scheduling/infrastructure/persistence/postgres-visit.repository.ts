@@ -1,18 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Visit } from '../../domain/visit';
 import { VisitRepository } from '../../domain/ports/visit.repository';
 import { VisitOrmEntity } from './visit.orm-entity';
 import { VisitMapper } from './visit.mapper';
+import { enqueueToOutbox } from '../../../shared/outbox/outbox';
 
 /**
- * Lesson 08 — the Postgres ADAPTER for the VisitRepository PORT.
- * Swap it for InMemoryVisitRepository in tests; the use case does not change.
+ * Lesson 10 — save() now writes the aggregate AND its events to the outbox
+ * in ONE transaction. Either both land, or neither does.
  */
 @Injectable()
 export class PostgresVisitRepository extends VisitRepository {
-  constructor(@InjectRepository(VisitOrmEntity) private readonly rows: Repository<VisitOrmEntity>) { super(); }
+  constructor(
+    @InjectRepository(VisitOrmEntity) private readonly rows: Repository<VisitOrmEntity>,
+    private readonly dataSource: DataSource,
+  ) { super(); }
 
   async findById(id: string): Promise<Visit | null> {
     const row = await this.rows.findOneBy({ id });
@@ -20,6 +24,9 @@ export class PostgresVisitRepository extends VisitRepository {
   }
 
   async save(visit: Visit): Promise<void> {
-    await this.rows.save(VisitMapper.toRow(visit));
+    await this.dataSource.transaction(async (tx) => {
+      await tx.getRepository(VisitOrmEntity).save(VisitMapper.toRow(visit));
+      await enqueueToOutbox(tx, visit.pullEvents());
+    });
   }
 }
