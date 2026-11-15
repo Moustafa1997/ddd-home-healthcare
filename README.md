@@ -46,3 +46,18 @@ npm install
 npm run start:dev
 npm test
 ```
+
+## Try it
+
+```bash
+# complete a visit → VisitCompleted goes through the Outbox → Billing invoices, Notifications notifies, dashboard projection updates
+curl -X POST localhost:3000/visits/<id>/check-out
+# cancel a visit → CancelVisitSaga releases the caregiver, refunds the invoice, reassigns
+curl -X POST localhost:3000/visits/<id>/cancel
+# read side (CQRS)
+curl localhost:3000/dashboard/visits
+```
+
+## Reading order
+
+Each branch builds on the previous one. Check out a branch, read its `GLOSSARY.md` and the spec files first — the tests are the story of each lesson.
