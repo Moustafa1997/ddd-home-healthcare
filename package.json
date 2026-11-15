@@ -4,12 +4,13 @@
   "description": "Domain-Driven Design in practice — a home healthcare scheduling system built step by step with NestJS, TypeScript and PostgreSQL",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "test:watch": "jest --watch",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "test:unit": "jest --testPathIgnorePatterns='transaction-script|active-record|postgres'"
   },
   "keywords": [],
   "author": "Moustafa Aboulazm",

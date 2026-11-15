@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
+import { NotifyFamilyOnVisitCompleted } from './application/on-visit-completed.handler';
 
-/**
- * Notifications Bounded Context.
- * Nothing outside this folder may import from inside it except through its public API (index.ts).
- */
-@Module({})
+/** Notifications Bounded Context (Supporting). */
+@Module({
+  imports: [CqrsModule],
+  providers: [NotifyFamilyOnVisitCompleted],
+})
 export class NotificationsModule {}

@@ -2,6 +2,7 @@ import { AggregateRoot } from '../../../shared/domain/aggregate-root';
 import { DomainError } from '../../../shared/domain/domain.error';
 import { VisitTime } from '../value-objects';
 import { Task, TaskKind } from './task';
+import { VisitCompleted } from '../events/visit-completed.event';
 
 export type VisitStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -71,6 +72,8 @@ export class Visit extends AggregateRoot<string> {
     // VisitTime validates "end after start" for us
     this.props.time = VisitTime.create(this.props.checkInAt!, at);
     this.props.status = 'completed';
+    // Lesson 06: record the fact. It is published AFTER the aggregate is saved.
+    this.record(new VisitCompleted(this.id, this.props.clientId, this.props.caregiverId!, this.props.time.durationMinutes, at));
   }
 
   cancel(): void {
