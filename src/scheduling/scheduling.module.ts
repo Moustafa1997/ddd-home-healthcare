@@ -16,7 +16,10 @@ import { DashboardQuery } from './read-model/dashboard.query';
 import { DashboardController } from './infrastructure/http/dashboard.controller';
 import { OutboxModule } from '../shared/outbox/outbox.module';
 import { OutboxRelay } from '../shared/outbox/outbox.relay';
-import { VisitCompleted } from './domain/events';
+import { VisitCompleted, VisitCancelled, CaregiverReleased } from './domain/events';
+import { CancelVisitUseCase } from './application/cancel-visit.use-case';
+import { CancelVisitSaga } from './application/sagas/cancel-visit.saga';
+import { ReleaseCaregiverHandler, ReassignCaregiverHandler, ReinstateVisitHandler } from './application/sagas/cancel-visit.handlers';
 
 /**
  * Scheduling Bounded Context (Core subdomain).
@@ -35,11 +38,16 @@ import { VisitCompleted } from './domain/events';
     CheckOutVisitService,
     { provide: VisitRepository, useClass: PostgresVisitRepository },
     CheckOutVisitUseCase,
+    CancelVisitUseCase,
+    CancelVisitSaga,
+    ReleaseCaregiverHandler,
+    ReassignCaregiverHandler,
+    ReinstateVisitHandler,
     VisitDashboardProjection,
     DashboardQuery,
   ],
-  exports: [CheckOutVisitUseCase, VisitRepository],
+  exports: [CheckOutVisitUseCase, CancelVisitUseCase, VisitRepository],
 })
 export class SchedulingModule {
-  constructor(relay: OutboxRelay) { relay.register(VisitCompleted); }
+  constructor(relay: OutboxRelay) { relay.register(VisitCompleted, VisitCancelled, CaregiverReleased); }
 }

@@ -3,6 +3,7 @@ import { DomainError } from '../../../shared/domain/domain.error';
 import { VisitTime } from '../value-objects';
 import { Task, TaskKind } from './task';
 import { VisitCompleted } from '../events/visit-completed.event';
+import { VisitCancelled } from '../events/visit-cancelled.event';
 
 export type VisitStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -76,9 +77,17 @@ export class Visit extends AggregateRoot<string> {
     this.record(new VisitCompleted(this.id, this.props.clientId, this.props.caregiverId!, this.props.time.durationMinutes, at));
   }
 
-  cancel(): void {
+  cancel(at: Date = new Date()): void {
     if (this.props.status === 'completed') throw new DomainError('Cannot cancel a completed visit');
+    if (this.props.status === 'cancelled') return; // idempotent
     this.props.status = 'cancelled';
+    this.record(new VisitCancelled(this.id, this.props.caregiverId, at));
+  }
+
+  /** Compensation used by the cancel saga when a later step fails. */
+  reinstate(): void {
+    if (this.props.status !== 'cancelled') throw new DomainError('Only a cancelled visit can be reinstated');
+    this.props.status = this.props.checkInAt ? 'in_progress' : 'scheduled';
   }
 
   // ---------- read-only views ----------
